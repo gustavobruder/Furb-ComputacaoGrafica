@@ -9,8 +9,8 @@ namespace gcgcg
     {
         private const int AnguloInc = 360 / 72;
 
-        private readonly double _raio;
-        public Ponto4D PtoDeslocamento;
+        public double Raio { get; }
+        public Ponto4D PtoDeslocamento { get; }
 
         public Circulo(Objeto _paiRef, ref char _rotulo, double _raio) : this(_paiRef, ref _rotulo, _raio, new Ponto4D())
         {
@@ -21,7 +21,7 @@ namespace gcgcg
             PrimitivaTipo = PrimitiveType.Points;
             PrimitivaTamanho = 5;
 
-            this._raio = _raio;
+            this.Raio = _raio;
             this.PtoDeslocamento = ptoDeslocamento;
 
             this.Atualizar();
@@ -33,7 +33,7 @@ namespace gcgcg
 
             for (var angulo = 0; angulo < 360; angulo += AnguloInc)
             {
-                var ponto4D = Matematica.GerarPtosCirculo(angulo, _raio);
+                var ponto4D = Matematica.GerarPtosCirculo(angulo, Raio);
                 base.PontosAdicionar(ponto4D + PtoDeslocamento);
             }
 
