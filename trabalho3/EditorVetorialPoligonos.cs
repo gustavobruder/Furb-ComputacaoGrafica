@@ -30,11 +30,6 @@ namespace gcgcg
             return _estaEditandoPoligono;
         }
 
-        public Poligono ObterUltimoPoligonoAdicionado()
-        {
-            return _poligonos.LastOrDefault();
-        }
-
         public void AdicionarNovoPoligono(Poligono poligono)
         {
             if (EstaEditandoPoligono())
@@ -118,10 +113,20 @@ namespace gcgcg
             if (poligonoSelecionado == null)
                 return;
 
-            base.FilhoRemover(poligonoSelecionado);
+            var poligonosRemover = new List<Poligono>(_poligonos.Count) { poligonoSelecionado };
 
-            _poligonos.RemoveRange(_indicePoligonoSelecionado, _poligonos.Count - _indicePoligonoSelecionado);
+            foreach (var poligono in _poligonos)
+            {
+                var paiPoligonoFoiRemovido = poligonosRemover.Contains(poligono.ObterPai());
+
+                if (paiPoligonoFoiRemovido)
+                    poligonosRemover.Add(poligono);
+            }
+
+            _poligonos.RemoveAll(x => poligonosRemover.Contains(x));
             _indicePoligonoSelecionado = -1;
+
+            base.FilhoRemover(poligonoSelecionado);
 
             Atualizar();
         }

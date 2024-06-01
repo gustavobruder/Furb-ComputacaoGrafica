@@ -130,6 +130,11 @@ namespace gcgcg
       filho.paiRef.objetosLista.Remove(filho);
     }
 
+    public Objeto ObterPai()
+    {
+      return this.paiRef;
+    }
+
     public Ponto4D PontosId(int id)
     {
       return pontosLista[id];

@@ -237,7 +237,7 @@ namespace gcgcg
 
         if (!_editorVetorialPoligonos.EstaEditandoPoligono())
         {
-          var paiNovoPoligono = _editorVetorialPoligonos.ObterUltimoPoligonoAdicionado() ?? (Objeto)_editorVetorialPoligonos;
+          var paiNovoPoligono = _editorVetorialPoligonos.ObterPoligonoSelecionado() ?? (Objeto)_editorVetorialPoligonos;
           _editorVetorialPoligonos.AdicionarNovoPoligono(new Poligono(paiNovoPoligono, ref rotuloAtual, new List<Ponto4D>()));
         }
 
