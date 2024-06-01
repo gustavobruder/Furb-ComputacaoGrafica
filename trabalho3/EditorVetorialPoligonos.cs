@@ -30,6 +30,11 @@ namespace gcgcg
             return _estaEditandoPoligono;
         }
 
+        public Poligono ObterUltimoPoligonoAdicionado()
+        {
+            return _poligonos.LastOrDefault();
+        }
+
         public void AdicionarNovoPoligono(Poligono poligono)
         {
             if (EstaEditandoPoligono())
@@ -39,7 +44,6 @@ namespace gcgcg
             _indicePoligonoSelecionado = _poligonos.Count - 1;
             _estaEditandoPoligono = true;
 
-            base.FilhoAdicionar(poligono);
             Atualizar();
         }
 
@@ -49,6 +53,7 @@ namespace gcgcg
                 return;
 
             _poligonos.Last().PontosAdicionar(ponto);
+
             Atualizar();
         }
 
@@ -82,20 +87,20 @@ namespace gcgcg
                     continue;
 
                 var pontosPoligono = poligono.pontosLista.Append(poligono.pontosLista.First()).ToArray();
-                var count = 0;
+                var qtdFlagScanLineTrue = 0;
 
                 for (var indicePonto = 0; indicePonto < poligono.pontosLista.Count; indicePonto++)
                 {
-                    var p1 = pontosPoligono[indicePonto];
-                    var p2 = pontosPoligono[indicePonto + 1];
+                    var ponto1 = pontosPoligono[indicePonto];
+                    var ponto2 = pontosPoligono[indicePonto + 1];
 
-                    var flagScanLine = Matematica.ScanLine(pontoClique, p1, p2);
+                    var flagScanLine = Matematica.ScanLine(pontoClique, ponto1, ponto2);
 
                     if (flagScanLine)
-                        count++;
+                        qtdFlagScanLineTrue++;
                 }
 
-                if (count % 2 != 0)
+                if (qtdFlagScanLineTrue % 2 != 0)
                 {
                     _indicePoligonoSelecionado = indicePoligono;
                     return poligono;
@@ -106,37 +111,51 @@ namespace gcgcg
             return null;
         }
 
-        public void AlterarPontoMaixProximoPoligonoSelecionado(Ponto4D pontoClique)
+        public void RemoverPoligonoSelecionado()
         {
             var poligonoSelecionado = ObterPoligonoSelecionado();
 
-            if (poligonoSelecionado == null || poligonoSelecionado.pontosLista.Count == 0)
+            if (poligonoSelecionado == null)
                 return;
 
-            (double Distancia, int Indice) pontoMenorDistancia = (double.MaxValue, -1);
+            base.FilhoRemover(poligonoSelecionado);
 
-            for (var i = 0; i < poligonoSelecionado.pontosLista.Count; i++)
-            {
-                var pontoPoligono = poligonoSelecionado.pontosLista[i];
-
-                var distancia = Matematica.Distancia(pontoClique, pontoPoligono);
-
-                if (distancia < pontoMenorDistancia.Distancia)
-                    pontoMenorDistancia = (distancia, i);
-            }
-
-            poligonoSelecionado.PontosAlterar(pontoClique, pontoMenorDistancia.Indice);
+            _poligonos.RemoveRange(_indicePoligonoSelecionado, _poligonos.Count - _indicePoligonoSelecionado);
+            _indicePoligonoSelecionado = -1;
 
             Atualizar();
         }
 
-        public void RemoverPontoMaixProximoPoligonoSelecionado(Ponto4D pontoClique)
+        public void AlterarPontoMaisProximoPoligonoSelecionado(Ponto4D pontoClique)
         {
             var poligonoSelecionado = ObterPoligonoSelecionado();
 
             if (poligonoSelecionado == null || poligonoSelecionado.pontosLista.Count == 0)
                 return;
 
+            var indicePontoMenorDistancia = SelecionarPontoMaisProximoPoligonoSelecionado(poligonoSelecionado, pontoClique);
+
+            poligonoSelecionado.PontosAlterar(pontoClique, indicePontoMenorDistancia);
+
+            Atualizar();
+        }
+
+        public void RemoverPontoMaisProximoPoligonoSelecionado(Ponto4D pontoClique)
+        {
+            var poligonoSelecionado = ObterPoligonoSelecionado();
+
+            if (poligonoSelecionado == null || poligonoSelecionado.pontosLista.Count == 0)
+                return;
+
+            var indicePontoMenorDistancia = SelecionarPontoMaisProximoPoligonoSelecionado(poligonoSelecionado, pontoClique);
+
+            poligonoSelecionado.PontosRemover(indicePontoMenorDistancia);
+
+            Atualizar();
+        }
+
+        private int SelecionarPontoMaisProximoPoligonoSelecionado(Poligono poligonoSelecionado, Ponto4D pontoClique)
+        {
             (double Distancia, int Indice) pontoMenorDistancia = (double.MaxValue, -1);
 
             for (var i = 0; i < poligonoSelecionado.pontosLista.Count; i++)
@@ -149,9 +168,7 @@ namespace gcgcg
                     pontoMenorDistancia = (distancia, i);
             }
 
-            poligonoSelecionado.PontosRemover(pontoMenorDistancia.Indice);
-
-            Atualizar();
+            return pontoMenorDistancia.Indice;
         }
 
         public void TranslacaoPoligonoSelecionado(double tx, double ty, double tz)
@@ -173,10 +190,14 @@ namespace gcgcg
             if (poligonoSelecionado == null)
                 return;
 
+            // 1 opcao
             var cloneCentroBBox = new Ponto4D(poligonoSelecionado.Bbox().ObterCentro);
             poligonoSelecionado.MatrizTranslacaoXYZ(-cloneCentroBBox.X, -cloneCentroBBox.Y, -cloneCentroBBox.Z);
             poligonoSelecionado.MatrizEscalaXYZ(tx, ty, tz);
             poligonoSelecionado.MatrizTranslacaoXYZ(cloneCentroBBox.X, cloneCentroBBox.Y, cloneCentroBBox.Z);
+
+            // 2 opcao
+            // poligonoSelecionado.MatrizEscalaXYZBBox(tx, ty, tz);
 
             Atualizar();
         }

@@ -108,119 +108,112 @@ namespace gcgcg
 
       #region Teclado
 
-      var estadoTeclado = KeyboardState;
-
-      if (estadoTeclado.IsKeyDown(Keys.Escape))
+      if (KeyboardState.IsKeyDown(Keys.Escape))
       {
         Close();
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Enter))
+      if (KeyboardState.IsKeyPressed(Keys.Enter))
       {
         Console.WriteLine("Tecla Enter");
 
         _editorVetorialPoligonos.FinalizarPoligono();
         objetoSelecionado = _editorVetorialPoligonos.ObterPoligonoSelecionado();
       }
-      if (estadoTeclado.IsKeyPressed(Keys.D))
+      if (KeyboardState.IsKeyPressed(Keys.D))
       {
         Console.WriteLine("Tecla D");
+
+        _editorVetorialPoligonos.RemoverPoligonoSelecionado();
+        objetoSelecionado = null;
       }
-      if (estadoTeclado.IsKeyDown(Keys.V))
+      if (KeyboardState.IsKeyDown(Keys.V))
       {
         Console.WriteLine("Tecla V");
 
         if (objetoSelecionado != null)
         {
-          int janelaLargura = ClientSize.X;
-          int janelaAltura = ClientSize.Y;
-          Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-          Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-          _editorVetorialPoligonos.AlterarPontoMaixProximoPoligonoSelecionado(sruPonto);
+          var pontoClique = ObterPontoClique();
+          _editorVetorialPoligonos.AlterarPontoMaisProximoPoligonoSelecionado(pontoClique);
         }
       }
-      if (estadoTeclado.IsKeyPressed(Keys.E))
+      if (KeyboardState.IsKeyPressed(Keys.E))
       {
         Console.WriteLine("Tecla E");
 
         if (objetoSelecionado != null)
         {
-          int janelaLargura = ClientSize.X;
-          int janelaAltura = ClientSize.Y;
-          Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-          Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-          _editorVetorialPoligonos.RemoverPontoMaixProximoPoligonoSelecionado(sruPonto);
+          var pontoClique = ObterPontoClique();
+          _editorVetorialPoligonos.RemoverPontoMaisProximoPoligonoSelecionado(pontoClique);
         }
       }
-      if (estadoTeclado.IsKeyPressed(Keys.P))
+      if (KeyboardState.IsKeyPressed(Keys.P))
       {
         Console.WriteLine("Tecla P");
       }
-      if (estadoTeclado.IsKeyPressed(Keys.R))
+      if (KeyboardState.IsKeyPressed(Keys.R))
       {
         Console.WriteLine("Tecla R");
 
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderVermelha;
       }
-      if (estadoTeclado.IsKeyPressed(Keys.G))
+      if (KeyboardState.IsKeyPressed(Keys.G))
       {
         Console.WriteLine("Tecla G");
 
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderVerde;
       }
-      if (estadoTeclado.IsKeyPressed(Keys.B))
+      if (KeyboardState.IsKeyPressed(Keys.B))
       {
         Console.WriteLine("Tecla B");
 
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderAzul;
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Up))
+      if (KeyboardState.IsKeyPressed(Keys.Up))
       {
         Console.WriteLine("Tecla Cima");
 
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.0, 0.1, 0.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Down))
+      if (KeyboardState.IsKeyPressed(Keys.Down))
       {
         Console.WriteLine("Tecla Baixo");
 
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.0, -0.1, 0.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Right))
+      if (KeyboardState.IsKeyPressed(Keys.Right))
       {
         Console.WriteLine("Tecla Dir");
 
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.1, 0.0, 0.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Left))
+      if (KeyboardState.IsKeyPressed(Keys.Left))
       {
         Console.WriteLine("Tecla Esq");
 
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(-0.1, 0.0, 0.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.Home))
+      if (KeyboardState.IsKeyPressed(Keys.Home))
       {
         Console.WriteLine("Tecla Home");
 
         _editorVetorialPoligonos.EscalaPoligonoSelecionado(2.0, 2.0, 1.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.End))
+      if (KeyboardState.IsKeyPressed(Keys.End))
       {
         Console.WriteLine("Tecla End");
 
         _editorVetorialPoligonos.EscalaPoligonoSelecionado(0.5, 0.5, 1.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.D3))
+      if (KeyboardState.IsKeyPressed(Keys.D3))
       {
         Console.WriteLine("Tecla 3");
 
         _editorVetorialPoligonos.RotacaoPoligonoSelecionado(10.0);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.D4))
+      if (KeyboardState.IsKeyPressed(Keys.D4))
       {
         Console.WriteLine("Tecla 4");
 
@@ -235,34 +228,33 @@ namespace gcgcg
       {
         Console.WriteLine("Mouse Left");
 
-        int janelaLargura = ClientSize.X;
-        int janelaAltura = ClientSize.Y;
-        Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-        objetoSelecionado = _editorVetorialPoligonos.SelecionarPoligono(sruPonto);
+        var pontoClique = ObterPontoClique();
+        objetoSelecionado = _editorVetorialPoligonos.SelecionarPoligono(pontoClique);
       }
       if (MouseState.IsButtonPressed(MouseButton.Right))
       {
         Console.WriteLine("Mouse Right");
 
         if (!_editorVetorialPoligonos.EstaEditandoPoligono())
-          _editorVetorialPoligonos.AdicionarNovoPoligono(new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>()));
+        {
+          var paiNovoPoligono = _editorVetorialPoligonos.ObterUltimoPoligonoAdicionado() ?? (Objeto)_editorVetorialPoligonos;
+          _editorVetorialPoligonos.AdicionarNovoPoligono(new Poligono(paiNovoPoligono, ref rotuloAtual, new List<Ponto4D>()));
+        }
 
-        int janelaLargura = ClientSize.X;
-        int janelaAltura = ClientSize.Y;
-        Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-        _editorVetorialPoligonos.AdicionarPontoPoligono(sruPonto);
-      }
-      if (MouseState.IsButtonReleased(MouseButton.Right))
-      {
-        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        var pontoClique = ObterPontoClique();
+        _editorVetorialPoligonos.AdicionarPontoPoligono(pontoClique);
       }
 
       #endregion
 
+      Ponto4D ObterPontoClique()
+      {
+        var janelaLargura = ClientSize.X;
+        var janelaAltura = ClientSize.Y;
+        var mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
+        var sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
+        return sruPonto;
+      }
     }
 
     protected override void OnResize(ResizeEventArgs e)

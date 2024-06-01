@@ -125,6 +125,11 @@ namespace gcgcg
       this.objetosLista.Add(filho);
     }
 
+    public void FilhoRemover(Objeto filho)
+    {
+      filho.paiRef.objetosLista.Remove(filho);
+    }
+
     public Ponto4D PontosId(int id)
     {
       return pontosLista[id];
