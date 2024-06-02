@@ -47,15 +47,34 @@ namespace gcgcg
             if (!EstaEditandoPoligono())
                 return;
 
-            _poligonos.Last().PontosAdicionar(ponto);
+            var poligono = _poligonos.Last();
+
+            // ponto de rastro
+            if (poligono.pontosLista.Count == 0)
+                poligono.PontosAdicionar(ponto);
+
+            poligono.PontosAdicionar(ponto);
 
             Atualizar();
+        }
+
+        public void AlterarPontoRastroPoligono(Ponto4D ponto)
+        {
+            if (!EstaEditandoPoligono())
+                return;
+
+            var poligono = _poligonos.Last();
+            poligono.PontosAlterar(ponto, poligono.pontosLista.Count - 1);
         }
 
         public void FinalizarPoligono()
         {
             if (!EstaEditandoPoligono())
                 return;
+
+            // ponto de rastro
+            var poligono = _poligonos.Last();
+            poligono.PontosRemover(poligono.PontosListaTamanho - 1);
 
             _estaEditandoPoligono = false;
 
@@ -214,10 +233,14 @@ namespace gcgcg
             if (poligonoSelecionado == null)
                 return;
 
+            // 1 opcao
             var cloneCentroBBox = new Ponto4D(poligonoSelecionado.Bbox().ObterCentro);
             poligonoSelecionado.MatrizTranslacaoXYZ(-cloneCentroBBox.X, -cloneCentroBBox.Y, -cloneCentroBBox.Z);
             poligonoSelecionado.MatrizRotacao(angulo);
             poligonoSelecionado.MatrizTranslacaoXYZ(cloneCentroBBox.X, cloneCentroBBox.Y, cloneCentroBBox.Z);
+
+            // 2 opcao
+            // poligonoSelecionado.MatrizRotacaoZBBox(angulo);
 
             Atualizar();
         }

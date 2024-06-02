@@ -114,36 +114,28 @@ namespace gcgcg
       }
       if (KeyboardState.IsKeyPressed(Keys.Enter))
       {
-        Console.WriteLine("Tecla Enter");
-
         _editorVetorialPoligonos.FinalizarPoligono();
         objetoSelecionado = _editorVetorialPoligonos.ObterPoligonoSelecionado();
       }
       if (KeyboardState.IsKeyPressed(Keys.D))
       {
-        Console.WriteLine("Tecla D");
-
         _editorVetorialPoligonos.RemoverPoligonoSelecionado();
         objetoSelecionado = null;
       }
       if (KeyboardState.IsKeyDown(Keys.V))
       {
-        Console.WriteLine("Tecla V");
-
         if (objetoSelecionado != null)
         {
-          var pontoClique = ObterPontoClique();
-          _editorVetorialPoligonos.AlterarPontoMaisProximoPoligonoSelecionado(pontoClique);
+          var pontoMouse = ObterPontoMouse();
+          _editorVetorialPoligonos.AlterarPontoMaisProximoPoligonoSelecionado(pontoMouse);
         }
       }
       if (KeyboardState.IsKeyPressed(Keys.E))
       {
-        Console.WriteLine("Tecla E");
-
         if (objetoSelecionado != null)
         {
-          var pontoClique = ObterPontoClique();
-          _editorVetorialPoligonos.RemoverPontoMaisProximoPoligonoSelecionado(pontoClique);
+          var pontoMouse = ObterPontoMouse();
+          _editorVetorialPoligonos.RemoverPontoMaisProximoPoligonoSelecionado(pontoMouse);
         }
       }
       if (KeyboardState.IsKeyPressed(Keys.P))
@@ -152,71 +144,49 @@ namespace gcgcg
       }
       if (KeyboardState.IsKeyPressed(Keys.R))
       {
-        Console.WriteLine("Tecla R");
-
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderVermelha;
       }
       if (KeyboardState.IsKeyPressed(Keys.G))
       {
-        Console.WriteLine("Tecla G");
-
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderVerde;
       }
       if (KeyboardState.IsKeyPressed(Keys.B))
       {
-        Console.WriteLine("Tecla B");
-
         if (objetoSelecionado != null)
           objetoSelecionado.ShaderObjeto = _shaderAzul;
       }
       if (KeyboardState.IsKeyPressed(Keys.Up))
       {
-        Console.WriteLine("Tecla Cima");
-
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.0, 0.1, 0.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.Down))
       {
-        Console.WriteLine("Tecla Baixo");
-
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.0, -0.1, 0.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.Right))
       {
-        Console.WriteLine("Tecla Dir");
-
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(0.1, 0.0, 0.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.Left))
       {
-        Console.WriteLine("Tecla Esq");
-
         _editorVetorialPoligonos.TranslacaoPoligonoSelecionado(-0.1, 0.0, 0.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.Home))
       {
-        Console.WriteLine("Tecla Home");
-
         _editorVetorialPoligonos.EscalaPoligonoSelecionado(2.0, 2.0, 1.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.End))
       {
-        Console.WriteLine("Tecla End");
-
         _editorVetorialPoligonos.EscalaPoligonoSelecionado(0.5, 0.5, 1.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.D3))
       {
-        Console.WriteLine("Tecla 3");
-
         _editorVetorialPoligonos.RotacaoPoligonoSelecionado(10.0);
       }
       if (KeyboardState.IsKeyPressed(Keys.D4))
       {
-        Console.WriteLine("Tecla 4");
-
         _editorVetorialPoligonos.RotacaoPoligonoSelecionado(-10.0);
       }
 
@@ -226,28 +196,29 @@ namespace gcgcg
 
       if (MouseState.IsButtonPressed(MouseButton.Left))
       {
-        Console.WriteLine("Mouse Left");
-
-        var pontoClique = ObterPontoClique();
+        var pontoClique = ObterPontoMouse();
         objetoSelecionado = _editorVetorialPoligonos.SelecionarPoligono(pontoClique);
       }
       if (MouseState.IsButtonPressed(MouseButton.Right))
       {
-        Console.WriteLine("Mouse Right");
-
         if (!_editorVetorialPoligonos.EstaEditandoPoligono())
         {
           var paiNovoPoligono = _editorVetorialPoligonos.ObterPoligonoSelecionado() ?? (Objeto)_editorVetorialPoligonos;
           _editorVetorialPoligonos.AdicionarNovoPoligono(new Poligono(paiNovoPoligono, ref rotuloAtual, new List<Ponto4D>()));
         }
 
-        var pontoClique = ObterPontoClique();
+        var pontoClique = ObterPontoMouse();
         _editorVetorialPoligonos.AdicionarPontoPoligono(pontoClique);
+      }
+      if (_editorVetorialPoligonos.EstaEditandoPoligono())
+      {
+        var pontoMouse = ObterPontoMouse();
+        _editorVetorialPoligonos.AlterarPontoRastroPoligono(pontoMouse);
       }
 
       #endregion
 
-      Ponto4D ObterPontoClique()
+      Ponto4D ObterPontoMouse()
       {
         var janelaLargura = ClientSize.X;
         var janelaAltura = ClientSize.Y;
