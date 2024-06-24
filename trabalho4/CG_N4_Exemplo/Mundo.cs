@@ -26,9 +26,9 @@ namespace gcgcg
 
     private readonly float[] _sruEixos =
     {
-      -0.5f,  0.0f,  0.0f, /* X- */      0.5f,  0.0f,  0.0f, /* X+ */
-       0.0f, -0.5f,  0.0f, /* Y- */      0.0f,  0.5f,  0.0f, /* Y+ */
-       0.0f,  0.0f, -0.5f, /* Z- */      0.0f,  0.0f,  0.5f  /* Z+ */
+      -2.0f,  0.0f,  0.0f, /* X- */      2.0f,  0.0f,  0.0f, /* X+ */     /* vermelho */
+       0.0f, -2.0f,  0.0f, /* Y- */      0.0f,  2.0f,  0.0f, /* Y+ */     /* verde */
+       0.0f,  0.0f, -2.0f, /* Z- */      0.0f,  0.0f,  2.0f  /* Z+ */     /* azul */
     };
 
     private int _vertexBufferObject_sruEixos;
@@ -43,6 +43,15 @@ namespace gcgcg
     private Shader _shaderAmarela;
 
     private Camera _camera;
+
+    #region N4
+
+    private Cubo _cuboMaior;
+    private Cubo _cuboMenor;
+    private bool _primeiroMovimentoMouse;
+    private Vector2 _ultimaPosicaoMouse;
+
+    #endregion
 
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
@@ -63,7 +72,7 @@ namespace gcgcg
       GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
       GL.Enable(EnableCap.DepthTest);       // Ativar teste de profundidade
-      GL.Enable(EnableCap.CullFace);     // Desenha os dois lados da face
+      //GL.Enable(EnableCap.CullFace);     // Desenha os dois lados da face
       // GL.FrontFace(FrontFaceDirection.Cw);
       // GL.CullFace(CullFaceMode.FrontAndBack);
 
@@ -87,20 +96,22 @@ namespace gcgcg
       GL.EnableVertexAttribArray(0);
       #endregion
 
-      #region Objeto: ponto  
-      objetoSelecionado = new Ponto(mundo, ref rotuloNovo, new Ponto4D(2.0, 0.0));
-      objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
-      objetoSelecionado.PrimitivaTamanho = 5;
+      #region Objeto: Cubo maior
+      _cuboMaior = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0,0), 2);
+      objetoSelecionado = _cuboMaior;
+      objetoSelecionado.shaderCor = _shaderBranca;
       #endregion
 
-      #region Objeto: Cubo
-      objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
-      #endregion
-      // objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
-
+      #region Objeto: Cubo menor
+      _cuboMenor = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0.0), 1);
+      objetoSelecionado = _cuboMenor;
       objetoSelecionado.shaderCor = _shaderAmarela;
+      objetoSelecionado.MatrizTranslacaoXYZ(3.0, 0.0, 0.0);
+      #endregion
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
+
+      CursorState = CursorState.Grabbed;
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -121,105 +132,71 @@ namespace gcgcg
     {
       base.OnUpdateFrame(e);
 
-      // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
       #region Teclado
+
       var estadoTeclado = KeyboardState;
+
       if (estadoTeclado.IsKeyDown(Keys.Escape))
         Close();
-      if (estadoTeclado.IsKeyPressed(Keys.Space))
-      {
-        if (objetoSelecionado == null)
-          objetoSelecionado = mundo;
-        objetoSelecionado.shaderCor = _shaderBranca;
-        objetoSelecionado = mundo.GrafocenaBuscaProximo(objetoSelecionado);
-        objetoSelecionado.shaderCor = _shaderAmarela;
-      }
-      if (estadoTeclado.IsKeyPressed(Keys.G))
-        mundo.GrafocenaImprimir("");
-      if (estadoTeclado.IsKeyPressed(Keys.P) && objetoSelecionado != null)
-        Console.WriteLine(objetoSelecionado.ToString());
-      if (estadoTeclado.IsKeyPressed(Keys.M) && objetoSelecionado != null)
-        objetoSelecionado.MatrizImprimir();
-      if (estadoTeclado.IsKeyPressed(Keys.I) && objetoSelecionado != null)
-        objetoSelecionado.MatrizAtribuirIdentidade();
-      if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(-0.05, 0, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0.05, 0, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0.05, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.Down) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, -0.05, 0);
-      if (estadoTeclado.IsKeyPressed(Keys.O) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0, 0.05);
-      if (estadoTeclado.IsKeyPressed(Keys.L) && objetoSelecionado != null)
-        objetoSelecionado.MatrizTranslacaoXYZ(0, 0, -0.05);
-      if (estadoTeclado.IsKeyPressed(Keys.PageUp) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZ(2, 2, 2);
-      if (estadoTeclado.IsKeyPressed(Keys.PageDown) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZ(0.5, 0.5, 0.5);
-      if (estadoTeclado.IsKeyPressed(Keys.Home) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZBBox(0.5, 0.5, 0.5);
-      if (estadoTeclado.IsKeyPressed(Keys.End) && objetoSelecionado != null)
-        objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
-      if (estadoTeclado.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(10);
-      if (estadoTeclado.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(-10);
-      if (estadoTeclado.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacaoZBBox(10);
-      if (estadoTeclado.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacaoZBBox(-10);
+      if (estadoTeclado.IsKeyPressed(Keys.D1))
+        Console.WriteLine("Tecla D1");
+      if (estadoTeclado.IsKeyPressed(Keys.D2))
+        Console.WriteLine("Tecla D2");
+      if (estadoTeclado.IsKeyPressed(Keys.D3))
+        Console.WriteLine("Tecla D3");
+      if (estadoTeclado.IsKeyPressed(Keys.D4))
+        Console.WriteLine("Tecla D4");
+      if (estadoTeclado.IsKeyPressed(Keys.D5))
+        Console.WriteLine("Tecla D5");
+      if (estadoTeclado.IsKeyPressed(Keys.D6))
+        Console.WriteLine("Tecla D6");
+      if (estadoTeclado.IsKeyPressed(Keys.D0))
+        Console.WriteLine("Tecla D0");
 
-      const float cameraSpeed = 1.5f;
+      const float cameraSpeed = 10.0f;
+
       if (estadoTeclado.IsKeyDown(Keys.Z))
         _camera.Position = Vector3.UnitZ * 5;
       if (estadoTeclado.IsKeyDown(Keys.W))
-        _camera.Position += _camera.Front * cameraSpeed * (float)e.Time; // Forward
+        _camera.Position += _camera.Front * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.S))
-        _camera.Position -= _camera.Front * cameraSpeed * (float)e.Time; // Backwards
+        _camera.Position -= _camera.Front * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.A))
-        _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time; // Left
+        _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.D))
-        _camera.Position += _camera.Right * cameraSpeed * (float)e.Time; // Right
-      if (estadoTeclado.IsKeyDown(Keys.RightShift))
-        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
+        _camera.Position += _camera.Right * cameraSpeed * (float)e.Time;
+      if (estadoTeclado.IsKeyDown(Keys.Space))
+        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time;
       if (estadoTeclado.IsKeyDown(Keys.LeftShift))
-        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-      if (estadoTeclado.IsKeyDown(Keys.D9))
-        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-      if (estadoTeclado.IsKeyDown(Keys.D0))
-        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
+        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time;
 
       #endregion
 
       #region  Mouse
 
-      if (MouseState.IsButtonPressed(MouseButton.Left))
-      {
-        Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
-        Console.WriteLine("__ Valores do Espaço de Tela");
-        Console.WriteLine("Vector2 mousePosition: " + MousePosition);
-        Console.WriteLine("Vector2i windowSize: " + ClientSize);
-      }
-      if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
-      {
-        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+      var estadoMouse = MouseState;
+      const float sensitivity = 0.1f;
 
-        int janelaLargura = ClientSize.X;
-        int janelaAltura = ClientSize.Y;
-        Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-        objetoSelecionado.PontosAlterar(sruPonto, 0);
-      }
-      if (MouseState.IsButtonReleased(MouseButton.Right))
+      if (_primeiroMovimentoMouse)
       {
-        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        _ultimaPosicaoMouse = new Vector2(estadoMouse.X, estadoMouse.Y);
+        _primeiroMovimentoMouse = false;
+      }
+      else
+      {
+        var deltaX = estadoMouse.X - _ultimaPosicaoMouse.X;
+        var deltaY = estadoMouse.Y - _ultimaPosicaoMouse.Y;
+
+        _ultimaPosicaoMouse = new Vector2(estadoMouse.X, estadoMouse.Y);
+
+        _camera.Yaw += deltaX * sensitivity;
+        _camera.Pitch -= deltaY * sensitivity;
       }
 
       #endregion
 
+      _cuboMenor.MatrizRotacao(0.1);
+      // _cuboMenor.MatrizRotacaoZBBox(0.1);
     }
 
     protected override void OnResize(ResizeEventArgs e)
