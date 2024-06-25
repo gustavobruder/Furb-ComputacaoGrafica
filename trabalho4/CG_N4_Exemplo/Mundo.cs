@@ -99,13 +99,11 @@ namespace gcgcg
       #region Objeto: Cubo maior
       _cuboMaior = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0,0), 2);
       objetoSelecionado = _cuboMaior;
-      objetoSelecionado.shaderCor = _shaderBranca;
       #endregion
 
       #region Objeto: Cubo menor
       _cuboMenor = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0.0), 1);
       objetoSelecionado = _cuboMenor;
-      objetoSelecionado.shaderCor = _shaderAmarela;
       objetoSelecionado.MatrizTranslacaoXYZ(3.0, 0.0, 0.0);
       #endregion
 
