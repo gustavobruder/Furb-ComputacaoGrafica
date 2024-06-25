@@ -10,35 +10,116 @@ namespace gcgcg
 {
     internal class Cubo : Objeto
     {
-        private Shader _shaderBranca = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
-        private Shader _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
-        private Shader _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
-        private Shader _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
-        private Shader _shaderCiano = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag");
-        private Shader _shaderMagenta = new Shader("Shaders/shader.vert", "Shaders/shaderMagenta.frag");
+        private Shader _shaderTextura;
+        private Texture _textura;
 
-        private Ponto4D _centro;
-        private double _tamanhoLado;
         private Ponto4D[] _vertices;
         private Face[] _faces;
 
-        public Cubo(Objeto _paiRef, ref char _rotulo, Ponto4D centro, double tamanhoLado) : base(_paiRef, ref _rotulo)
+        public Cubo(Objeto _paiRef, ref char _rotulo, bool cuboMaior) : base(_paiRef, ref _rotulo)
         {
             PrimitivaTipo = PrimitiveType.TriangleFan;
             PrimitivaTamanho = 10;
 
-            _centro = centro;
-            _tamanhoLado = tamanhoLado;
+            if (cuboMaior)
+                MontarCuboMaior(ref _rotulo);
+            else
+                MontarCuboMenor(ref _rotulo);
 
-            var metadeLado = _tamanhoLado / 2;
-            var maxX = _centro.X + metadeLado;
-            var minX = _centro.X - metadeLado;
-            var maxY = _centro.Y + metadeLado;
-            var minY = _centro.Y - metadeLado;
-            var maxZ = _centro.Z + metadeLado;
-            var minZ = _centro.Z - metadeLado;
+            Atualizar();
+        }
 
-            _vertices = new Ponto4D[]
+        private void MontarCuboMaior(ref char rotulo)
+        {
+            _vertices = new[]
+            {
+                new Ponto4D(-1.0f, -1.0f, -1.0f), // Ponto 0
+                new Ponto4D(-1.0f, -1.0f,  1.0f), // Ponto 1
+                new Ponto4D(-1.0f,  1.0f,  1.0f), // Ponto 2
+                new Ponto4D( 1.0f,  1.0f,  1.0f), // Ponto 3
+                new Ponto4D( 1.0f,  1.0f, -1.0f), // Ponto 4
+                new Ponto4D( 1.0f, -1.0f, -1.0f), // Ponto 5
+                new Ponto4D(-1.0f,  1.0f, -1.0f), // Ponto 6
+                new Ponto4D( 1.0f, -1.0f,  1.0f), // Ponto 7
+            };
+
+            var faceFrente = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[1], _vertices[7], _vertices[3], _vertices[3], _vertices[2], _vertices[1] },
+                indicesTexturas: new[] { 3, 1, 0, 0, 2, 3 },
+                indicesNormais: new[] { 2, 2, 2, 2, 2, 2 });
+
+            var faceCima = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[6], _vertices[4], _vertices[3], _vertices[3], _vertices[2], _vertices[6] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 5, 5, 5, 5, 5, 5 });
+
+            var faceFundo = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[0], _vertices[5], _vertices[4], _vertices[4], _vertices[6], _vertices[0] },
+                indicesTexturas: new[] { 3, 1, 0, 0, 2, 3 },
+                indicesNormais: new[] { 0, 0, 0, 0, 0, 0 });
+
+            var faceBaixo = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[0], _vertices[5], _vertices[7], _vertices[7], _vertices[1], _vertices[0] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 4, 4, 4, 4, 4, 4 });
+
+            var faceEsquerda = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[2], _vertices[6], _vertices[0], _vertices[0], _vertices[1], _vertices[2] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 3, 3, 3, 3, 3, 3 });
+
+            var faceDireita = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[3], _vertices[4], _vertices[5], _vertices[5], _vertices[7], _vertices[3] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 1, 1, 1, 1, 1, 1 });
+
+            _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
+            _textura = Texture.LoadFromFile("Resources/Gustavo.jpeg");
+
+            faceFrente.shaderCor = _shaderTextura;
+            faceCima.shaderCor = _shaderTextura;
+            faceFundo.shaderCor = _shaderTextura;
+            faceBaixo.shaderCor = _shaderTextura;
+            faceEsquerda.shaderCor = _shaderTextura;
+            faceDireita.shaderCor = _shaderTextura;
+
+            _faces = new[]
+            {
+                faceFrente,
+                faceCima,
+                faceFundo,
+                faceBaixo,
+                faceEsquerda,
+                faceDireita,
+            };
+        }
+
+        private void MontarCuboMenor(ref char rotulo)
+        {
+            var centro = new Ponto4D(0.0, 0.0);
+            var tamanhoLado = 1.0d;
+
+            var metadeLado = tamanhoLado / 2;
+            var maxX = centro.X + metadeLado;
+            var minX = centro.X - metadeLado;
+            var maxY = centro.Y + metadeLado;
+            var minY = centro.Y - metadeLado;
+            var maxZ = centro.Z + metadeLado;
+            var minZ = centro.Z - metadeLado;
+
+            _vertices = new[]
             {
                 new Ponto4D(minX, maxY, minZ), // Ponto 0
                 new Ponto4D(maxX, maxY, minZ), // Ponto 1
@@ -50,43 +131,35 @@ namespace gcgcg
                 new Ponto4D(minX, minY, maxZ), // Ponto 7
             };
 
-            var faceFrente = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[3], _vertices[2], _vertices[6],
-                _vertices[6], _vertices[7], _vertices[3],
-            });
-            var faceCima = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[0], _vertices[1], _vertices[2],
-                _vertices[2], _vertices[3], _vertices[0],
-            });
-            var faceFundo = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[0], _vertices[1], _vertices[5],
-                _vertices[5], _vertices[4], _vertices[0],
-            });
-            var faceBaixo = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[4], _vertices[5], _vertices[6],
-                _vertices[6], _vertices[7], _vertices[4],
-            });
-            var faceEsquerda = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[3], _vertices[0], _vertices[4],
-                _vertices[4], _vertices[7], _vertices[3],
-            });
-            var faceDireita = new Face(this, ref _rotulo, new[]
-            {
-                _vertices[2], _vertices[1], _vertices[5],
-                _vertices[5], _vertices[6], _vertices[2],
-            });
+            var faceFrente = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[3], _vertices[2], _vertices[6], _vertices[6], _vertices[7], _vertices[3] });
 
-            faceFrente.shaderCor = _shaderBranca;
-            faceCima.shaderCor = _shaderVermelha;
-            faceFundo.shaderCor = _shaderVerde;
-            faceBaixo.shaderCor = _shaderAzul;
-            faceEsquerda.shaderCor = _shaderCiano;
-            faceDireita.shaderCor = _shaderMagenta;
+            var faceCima = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[0], _vertices[1], _vertices[2], _vertices[2], _vertices[3], _vertices[0] });
+
+            var faceFundo = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[0], _vertices[1], _vertices[5], _vertices[5], _vertices[4], _vertices[0] });
+
+            var faceBaixo = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[4], _vertices[5], _vertices[6], _vertices[6], _vertices[7], _vertices[4] });
+
+            var faceEsquerda = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[3], _vertices[0], _vertices[4], _vertices[4], _vertices[7], _vertices[3] });
+
+            var faceDireita = new Face(
+                _paiRef: this,
+                ref rotulo,
+                vertices: new[] { _vertices[2], _vertices[1], _vertices[5], _vertices[5], _vertices[6], _vertices[2] });
 
             _faces = new[]
             {
@@ -98,7 +171,7 @@ namespace gcgcg
                 faceDireita,
             };
 
-            Atualizar();
+            base.MatrizTranslacaoXYZ(3.0, 0.0, 0.0);
         }
 
         private void Atualizar()

@@ -8,17 +8,72 @@ namespace gcgcg
 {
     internal class Face : Objeto
     {
-        public Face(Objeto _paiRef, ref char _rotulo, Ponto4D[] _vertices) : base(_paiRef, ref _rotulo)
+        private static Ponto4D[] _textureVertices = new[]
+        {
+            new Ponto4D(1, 1),
+            new Ponto4D(1, 0),
+            new Ponto4D(0, 1),
+            new Ponto4D(0, 0),
+        };
+
+        private static Ponto4D[] _normalVertices = new[]
+        {
+            new Ponto4D( 0,  0,  1),
+            new Ponto4D( 1,  0,  0),
+            new Ponto4D( 0,  0, -1),
+            new Ponto4D(-1,  0,  0),
+            new Ponto4D( 0, -1,  0),
+            new Ponto4D( 0,  1,  0),
+        };
+
+        public Face(Objeto _paiRef, ref char _rotulo, Ponto4D[] vertices)
+            : this(_paiRef, ref _rotulo, vertices, null, null)
+        {
+        }
+
+        public Face(Objeto _paiRef, ref char _rotulo, Ponto4D[] vertices, int[] indicesTexturas, int[] indicesNormais)
+            : base(_paiRef, ref _rotulo)
         {
             PrimitivaTipo = PrimitiveType.TriangleFan;
             PrimitivaTamanho = 10;
 
-            foreach (var vertice in _vertices)
-            {
-                PontosAdicionar(vertice);
-            }
+            AdicionarPontosVertices(vertices);
+
+            AdicionarPontosTexturas(indicesTexturas);
+
+            AdicionarPontosNormais(indicesNormais);
 
             Atualizar();
+        }
+
+        private void AdicionarPontosVertices(Ponto4D[] vertices)
+        {
+            foreach (var vertice in vertices)
+            {
+                base.PontosAdicionar(vertice);
+            }
+        }
+
+        private void AdicionarPontosTexturas(int[] indicesTexturas)
+        {
+            if (indicesTexturas == null)
+                return;
+
+            foreach (var indiceTextura in indicesTexturas)
+            {
+                pontosTextura.Add(_textureVertices[indiceTextura]);
+            }
+        }
+
+        private void AdicionarPontosNormais(int[] indicesNormais)
+        {
+            if (indicesNormais == null)
+                return;
+
+            foreach (var indiceNormal in indicesNormais)
+            {
+                pontosNormal.Add(_normalVertices[indiceNormal]);
+            }
         }
 
         private void Atualizar()

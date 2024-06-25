@@ -97,14 +97,13 @@ namespace gcgcg
       #endregion
 
       #region Objeto: Cubo maior
-      _cuboMaior = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0,0), 2);
+      _cuboMaior = new Cubo(mundo, ref rotuloNovo, true);
       objetoSelecionado = _cuboMaior;
       #endregion
 
       #region Objeto: Cubo menor
-      _cuboMenor = new Cubo(mundo, ref rotuloNovo, new Ponto4D(0.0, 0.0), 1);
+      _cuboMenor = new Cubo(mundo, ref rotuloNovo, false);
       objetoSelecionado = _cuboMenor;
-      objetoSelecionado.MatrizTranslacaoXYZ(3.0, 0.0, 0.0);
       #endregion
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
